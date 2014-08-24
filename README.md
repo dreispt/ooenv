@@ -1,0 +1,4 @@
+ooenv
+=====
+
+Odoo Virtual Environments
