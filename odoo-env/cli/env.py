@@ -19,8 +19,16 @@
 from __future__ import print_function
 import argparse
 import os
+import stat
 import sys
 import openerp
+
+from . import utils
+
+
+def chmod_add_x(file_path):
+    fmode = os.stat(file_path).st_mode | stat.S_IEXEC
+    os.chmod(file_path, fmode)
 
 
 class Env(openerp.cli.Command):
@@ -37,19 +45,24 @@ class Env(openerp.cli.Command):
 
         if not cmdargs:
             sys.exit(parser.print_help())
+
         args = parser.parse_args(args=cmdargs)
         odoo_path = os.path.realpath(sys.argv[0])
         env_path = os.path.realpath(args.path)
-        env_fname = os.path.join(env_path, 'odoo')
-        env_db = env_path.split(os.path.sep)[-1]
+        os.mkdir(args.path)
+        #os.symlink(odoo_path, os.path.join(env_path, '.odoo.py'))
+        env_fname = os.path.join(env_path, 'odoo.sh')
         env_script = '\n'.join([
             "#!/usr/bin/env bash",
-            "python %s start --path=%s -d %s $*" %
-            (odoo_path, env_path, env_db)
-        ])
-        os.mkdir(args.path)
+            "cd %s" % env_path,
+            "%s $*" % odoo_path])
         open(env_fname, 'w').write(env_script)
-
-        print(sys.argv)
-        print('Created environment %s using Odoo at %s' %
+        chmod_add_x(env_fname)
+        print('Created environment %s using the Odoo server at %s' %
               (args.path, odoo_path))
+
+        cache_path = os.path.join(args.path, utils.LOCAL_CACHE)
+        os.mkdir(cache_path)
+        for url in utils.INDEX_URLS:
+            utils.download_repo(cache_path, url)
+            print("  * Index %s available" % url)
