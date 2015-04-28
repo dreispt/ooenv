@@ -54,20 +54,27 @@ class Get(Command):
                 return False
         return True
 
+    def get_modules(self, modules, env_root, exclude=None):
+        exclude = exclude or ['base']
+        for m in modules:
+            self.get_module(m, env_root, exclude)
+        return True
+
     def run(self, cmdargs):
         parser = argparse.ArgumentParser(
             prog="%s get" % os.path.basename(sys.argv[0]),
             description=self.__doc__)
         parser.add_argument(
-            'module', help="Name of the module to get")
-        #parser.add_argument(
-        #    'repo', nargs='?',
-        #    help="URL for the source code")
+            'modules', nargs='+', help="Modules to get")
+        parser.add_argument('-q', '--quiet', dest='quiet',
+                            help='Suppress information messages')
+        parser.add_argument('-v', '--verbose', dest='verbose',
+                            help='Verbose messages')
 
         if not cmdargs:
             sys.exit(parser.print_help())
         args = parser.parse_args(args=cmdargs)
 
         env_root = os.getcwd()
-        self.get_module(args.module, env_root)
+        self.get_modules(args.modules, env_root)
         print('Done.')

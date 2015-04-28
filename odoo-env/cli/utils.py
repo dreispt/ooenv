@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import ast
 import os
 import subprocess
@@ -9,6 +11,14 @@ from openerp import release
 
 LOCAL_CACHE = '.ooenv-local'
 INDEX_URLS = ['https://github.com/dreispt/ooenv-index.git']
+
+
+def echo(text, extra_info=False, verbose=False, quiet=False):
+    if quiet:
+        return
+    if extra_info and not verbose:
+        return
+    print(text)
 
 
 def download_repo(path, repo_url):
