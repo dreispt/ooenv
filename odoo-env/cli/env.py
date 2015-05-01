@@ -49,7 +49,8 @@ class Env(openerp.cli.Command):
         args = parser.parse_args(args=cmdargs)
         odoo_path = os.path.realpath(sys.argv[0])
         env_path = os.path.realpath(args.path)
-        os.mkdir(args.path)
+        if not args.path == '.':
+            os.mkdir(args.path)
         #os.symlink(odoo_path, os.path.join(env_path, '.odoo.py'))
         env_fname = os.path.join(env_path, 'odoo.sh')
         env_script = '\n'.join([
