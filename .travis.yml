@@ -13,14 +13,12 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+  - git clone --depth=1 https://github.com/dreispt/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools -b ref-odoo
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
 
 script:
-  - ~/odoo-8.0/odoo.py env testenv
-  - testenv/odoo.sh get mgmtsystem
-  #- travis_run_tests
+  - travis_run_tests
 
 #after_success:
 #  coveralls
