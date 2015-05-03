@@ -17,38 +17,45 @@ class Get(Command):
         # Modules already visited are skipped
         if exclude and module in exclude:
             return True
-        exclude = (exclude or ['base']) + [module]
+        exclude = exclude if exclude is not None else ['base']
+        exclude.append(module)
         # Modules already in the path are skipped
         if module in get_modules():
             print('. %s is available from addons path.' % module)
             return True
-        # Modules not in the local cache are downloaded
-        path = os.path.join(env_root, utils.LOCAL_CACHE)
-        module_path = utils.crawl_modules(path).get(module)
-        if module_path:
-            print('- %s already active (at %s)' % (module, module_path))
+        if module in os.listdir(env_root):
+            # Modules in the env root are already active
+            module_path = os.path.join(env_root, module)
+            print('. %s already active (at %s)' % (module, module_path))
+
         else:
-            index = utils.indexed_modules(path)
-            if module not in index:
-                print('! %s was not found!' % module)
-                return False
-            utils.download_repo(path, index[module])
+            # Modules in the local cache are available to activate
+            path = os.path.join(env_root, utils.LOCAL_CACHE)
             module_path = utils.crawl_modules(path).get(module)
             if not module_path:
-                print('! ERROR: %s not found on the repo!' % module)
-                return False
+                # Modules not in the local cache are downloaded
+                index = utils.indexed_modules(path)
+                if module not in index:
+                    print('! %s was not found!' % module)
+                    return False
+                utils.download_repo(path, index[module])
+                module_path = utils.crawl_modules(path).get(module)
+                if not module_path:
+                    print('! ERROR: %s not found on the repo!' % module)
+                    return False
 
         # Symlink module into current environment
-        target_path = os.path.join(env_root, module)
-        try:
+        if module not in os.listdir(env_root):
+            target_path = os.path.join(env_root, module)
             os.symlink(module_path, target_path)
-            print('+ %s activated' % module)
-        except OSError:
-            print('- %s already exists' % module)
+            print('+ %s activated (from %s)' % (module, module_path))
 
         # Get dependencies
-        manifest = utils.load_manifest(module_path)
-        depends = manifest['depends']
+        try:
+            manifest = utils.load_manifest(module_path)
+        except IOError:
+            manifest = {}
+        depends = manifest.get('depends')
         for m in depends:
             if not self.get_module(m, env_root, exclude=exclude):
                 return False
