@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
-~/odoo-8.0/odoo.py env testenv
-./testenv/odoo.sh get mgmtsystem
+rm -rf ./test-env
+../odoo/odoo.py env test-env
+./test-env/odoo.sh get --verbose document_page mgmtsystem
 ls -l ./testenv
 
-./testenv/odoosh start --stop-after-init
+./test-env/odoo.sh start --stop-after-init
