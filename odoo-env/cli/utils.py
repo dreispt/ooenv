@@ -3,32 +3,11 @@ from __future__ import print_function
 
 import ast
 import os
-import subprocess
 import yaml
 from openerp.modules.module import MANIFEST
-from openerp import release
 
 
 LOCAL_CACHE = '.ooenv-local'
-INDEX_URLS = ['https://github.com/dreispt/ooenv-index.git']
-
-
-def echo(text, extra_info=False, verbose=False, quiet=False):
-    if quiet:
-        return
-    if extra_info and not verbose:
-        return
-    print(text)
-
-
-def download_repo(path, repo_url):
-    """ Download the repo URL to the local cache """
-    os.chdir(path)
-    params = repo_url.split(' ')
-    if not('-b' in params or '--branch' in params):
-        params.extend(['-b', release.version])
-    cmd = ['git', 'clone'] + params
-    subprocess.call(cmd)
 
 
 def crawl_modules(path):
