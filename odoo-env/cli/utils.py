@@ -3,11 +3,30 @@ from __future__ import print_function
 
 import ast
 import os
+import shutil
+import subprocess
 import yaml
+
+import openerp
 from openerp.modules.module import MANIFEST
 
 
 LOCAL_CACHE = '.ooenv-local'
+
+
+def download_repo(path, repo_url):
+    """ Download the repo URL to the local cache """
+    if repo_url.endswith('.git'):
+        os.chdir(path)
+        params = repo_url.split(' ')
+        if not('-b' in params or '--branch' in params):
+            params.extend(['-b', openerp.release.version])
+        cmd = ['git', 'clone', '--depth=1'] + params
+        subprocess.call(cmd)
+    else:
+        src_path = os.path.realpath(repo_url)
+        dest_dir = os.path.basename(src_path)
+        shutil.copytree(repo_url, os.path.join(path, dest_dir))
 
 
 def crawl_modules(path):

@@ -35,7 +35,6 @@ class Find(Command):
         parser.add_argument('-v', '--verbose', dest='verbose')
 
         args = parser.parse_args(args=cmdargs)
-        #env_root = os.path.dirname(sys.argv[0])
         env_root = os.getcwd()
         if args.verbose:
             print("Environment root is %s" % env_root)

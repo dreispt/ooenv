@@ -19,8 +19,6 @@
 from __future__ import print_function
 import argparse
 import os
-import shutil
-import subprocess
 import stat
 import sys
 import openerp
@@ -34,21 +32,6 @@ INDEX_URLS = ['https://github.com/dreispt/ooenv-index.git']
 def chmod_add_x(file_path):
     fmode = os.stat(file_path).st_mode | stat.S_IEXEC
     os.chmod(file_path, fmode)
-
-
-def download_repo(path, repo_url):
-    """ Download the repo URL to the local cache """
-    if repo_url.endswith('.git'):
-        os.chdir(path)
-        params = repo_url.split(' ')
-        if not('-b' in params or '--branch' in params):
-            params.extend(['-b', openerp.release.version])
-        cmd = ['git', 'clone', '--depth=1'] + params
-        subprocess.call(cmd)
-    else:
-        src_path = os.path.realpath(repo_url)
-        dest_dir = os.path.basename(src_path)
-        shutil.copytree(repo_url, os.path.join(path, dest_dir))
 
 
 class Env(openerp.cli.Command):
@@ -86,5 +69,5 @@ class Env(openerp.cli.Command):
         cache_path = os.path.join(args.path, utils.LOCAL_CACHE)
         os.mkdir(cache_path)
         for url in args.index:
-            download_repo(cache_path, url)
+            utils.download_repo(cache_path, url)
             print("Index %s available" % url)

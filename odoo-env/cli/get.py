@@ -64,7 +64,7 @@ class Get(Command):
             manifest = utils.load_manifest(module_path)
         except IOError:
             manifest = {}
-        depends = manifest.get('depends')
+        depends = manifest.get('depends', [])
         for m in depends:
             if not self.get_module(m, env_root, exclude=exclude,
                                    verbose=verbose, quiet=quiet):
